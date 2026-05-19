@@ -16,7 +16,9 @@ headers**. Most of the "performance problem" is the web server, not Bagisto.
 
 Fix it in this order:
 
-1. Serve through **nginx** with gzip/brotli + cache headers → see [`nginx/bagisto.conf`](nginx/bagisto.conf)
+1. Serve through **nginx** or **Apache** with gzip/brotli + cache headers
+   - nginx → [`nginx/bagisto.conf`](nginx/bagisto.conf)
+   - Apache → [`apache/bagisto.conf`](apache/bagisto.conf) + [`apache/htaccess-performance.conf`](apache/htaccess-performance.conf)
 2. Put a **CDN** in front (Cloudflare) → see [`docs/cloudflare.md`](docs/cloudflare.md)
 3. Run the standard Laravel/Bagisto **production optimisations**
 4. Re-test correctly → see [`docs/measuring.md`](docs/measuring.md)
@@ -25,12 +27,19 @@ Quick checklist: [`docs/checklist.md`](docs/checklist.md)
 
 ---
 
-## 1. Web server (nginx)
+## 1. Web server (nginx or Apache)
 
 The dev server (`php artisan serve`) is for development only. In production,
-serve Bagisto with nginx + PHP-FPM.
+serve Bagisto with nginx or Apache + PHP-FPM.
 
-Use [`nginx/bagisto.conf`](nginx/bagisto.conf). It provides:
+**nginx** — use [`nginx/bagisto.conf`](nginx/bagisto.conf).
+
+**Apache** — use [`apache/bagisto.conf`](apache/bagisto.conf) (virtual host) plus
+[`apache/htaccess-performance.conf`](apache/htaccess-performance.conf)
+(compression + cache headers; append to `public/.htaccess` or include from the
+vhost). Enable: `a2enmod rewrite headers expires deflate`.
+
+Either way you get:
 
 - **gzip** compression (and brotli, if the module is available)
 - **`Cache-Control: public, immutable`, 1 year** for hashed Vite build assets
@@ -44,19 +53,23 @@ Bagisto resizes images on demand. A request for `/cache/medium/...` that has no
 file yet must reach `index.php` so Laravel can generate it.
 
 ```nginx
-# WRONG - returns 404 for every not-yet-generated image
+# nginx - WRONG: returns 404 for every not-yet-generated image
 location ^~ /cache/ { try_files $uri =404; }
 
-# CORRECT - generated files served directly, misses fall through to Laravel
+# nginx - CORRECT: generated files served directly, misses fall through to Laravel
 location ^~ /cache/ { try_files $uri /index.php?$query_string; }
 ```
 
-### Critical: do not force `Cache-Control` in the PHP block
+On **Apache** this works out of the box — Bagisto's `public/.htaccess` already
+rewrites missing files to `index.php`. Just do not add a rule that 404s missing
+`/cache/` files.
+
+### Critical: do not force `Cache-Control` on PHP responses
 
 Bagisto sets its own headers per response — HTML is `no-cache`, resized images
-are long-lived `public`. A blanket `add_header Cache-Control "no-cache"` in the
-`location ~ \.php$` block makes **every resized image uncacheable**. Leave the
-app's headers alone.
+are long-lived `public`. A blanket `Cache-Control: no-cache` on PHP output
+(nginx `add_header` in the `\.php$` block, or an Apache `Header set` on PHP)
+makes **every resized image uncacheable**. Leave the app's headers alone.
 
 ---
 

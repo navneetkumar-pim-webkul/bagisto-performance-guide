@@ -1,13 +1,14 @@
 # Bagisto performance checklist
 
-## Web server
-- [ ] Served by nginx + PHP-FPM (not `php artisan serve`)
+## Web server (nginx or Apache)
+- [ ] Served by nginx or Apache + PHP-FPM (not `php artisan serve`)
 - [ ] gzip enabled; brotli enabled if the module is available
 - [ ] `Cache-Control: public, immutable`, 1y on `/themes/` build assets
 - [ ] Long cache on `/cache/` and `/storage/`
-- [ ] `/cache/` falls through to `index.php` (image resizing works)
-- [ ] No blanket `Cache-Control` override in the `\.php$` block
+- [ ] Missing `/cache/` files fall through to `index.php` (image resizing works)
+- [ ] No blanket `Cache-Control` override on PHP responses
 - [ ] HTTP/2 (or HTTP/3) enabled
+- [ ] Apache only: `rewrite headers expires deflate` modules enabled
 
 ## CDN (Cloudflare)
 - [ ] Brotli on
