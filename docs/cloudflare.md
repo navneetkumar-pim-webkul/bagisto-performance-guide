@@ -6,25 +6,32 @@ removes most network latency. Configured poorly (or via a slow tunnel) it can
 
 ## Recommended settings
 
-Cloudflare dashboard:
+Cloudflare dashboard (menu paths change occasionally — search the dashboard if a
+path differs on your account):
 
-| Setting | Where | Value |
+| Setting | Plan | Value |
 |---|---|---|
-| Brotli | Speed → Optimization → Content | On |
-| Polish | Speed → Optimization → Images | Lossy + WebP |
-| Auto Minify | (legacy) Speed → Optimization | Optional |
-| Early Hints | Speed → Optimization | On |
-| HTTP/3 (QUIC) | Network | On |
-| Browser Cache TTL | Caching → Configuration | Respect Existing Headers |
+| Brotli | All (on by default) | On |
+| Early Hints | All | On |
+| HTTP/3 (QUIC) | All | On |
+| Browser Cache TTL | All | Respect Existing Headers |
+| Polish (image optimisation) | **Pro and above** | Lossy + WebP |
 
-`Polish` is the biggest easy win — it re-compresses and serves WebP/AVIF for
-every image at the edge, including large banner/hero images.
+`Polish` re-compresses and serves WebP/AVIF for every image at the edge,
+including large banner/hero images — the biggest easy image win. It requires a
+**paid Cloudflare plan (Pro or higher)**; it is not available on the Free plan.
+On the Free plan, optimise images at the origin instead (correctly sized,
+WebP/AVIF source files).
+
+> Cloudflare removed the standalone **Auto Minify** feature in 2024. Minify your
+> CSS/JS in the build step instead — Vite (`npm run build`) already does this.
 
 ## Static assets are cached automatically
 
-CSS, JS, fonts and images with a long `Cache-Control` (set by the nginx config)
-are cached at the Cloudflare edge — confirm with the `cf-cache-status: HIT`
-response header. These never touch the origin after the first request.
+CSS, JS, fonts and images with a long `Cache-Control` (set by the nginx or
+Apache config) are cached at the Cloudflare edge — confirm with the
+`cf-cache-status: HIT` response header. These never touch the origin after the
+first request.
 
 ## HTML is dynamic
 
@@ -48,12 +55,16 @@ a public IP, every request travels:
 visitor → Cloudflare edge → cloudflared tunnel → origin → back
 ```
 
-The tunnel hop adds TTFB (often 0.3–0.9s). Measured example:
+The tunnel hop adds TTFB — how much depends on the route between the origin and
+Cloudflare. One measured example (same origin, same machine):
 
 ```
 Direct origin (nginx)        TTFB ~0.16s
 Same origin via the tunnel   TTFB ~0.5–0.9s
 ```
+
+Measure your own setup with `curl` before assuming — see
+[`measuring.md`](measuring.md).
 
 For a demo box a tunnel is fine. For production performance, prefer a **direct
 origin** (public IP behind Cloudflare's proxy) — the edge pulls from the origin

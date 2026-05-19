@@ -30,9 +30,10 @@ Lighthouse Performance is a weighted blend of 5 metrics:
 The diagnostics ("reduce unused CSS", "DOM size", …) do **not** score directly —
 they only matter through the metric they influence.
 
-Each metric scores on a curve: a metric scores `1.00` only near the *ideal*, not
-just "good". Example (desktop): LCP `1.00` needs ≈ 0.8s; LCP 1.2s ≈ 0.92. A site
-can be genuinely fast and still sit at 95–98.
+Each metric scores on a curve: a metric scores near `1.00` only close to the
+*ideal*, not just "good". On the desktop curve, LCP ≈ 1.2s already scores about
+0.9 — to reach a near-perfect 1.00 it needs to be well under ~1s. A site can be
+genuinely fast and still sit at 95–98.
 
 ## Scores vary between runs
 

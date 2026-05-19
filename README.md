@@ -78,7 +78,7 @@ makes **every resized image uncacheable**. Leave the app's headers alone.
 A CDN serves static assets from an edge near the visitor and removes most of the
 round-trip latency. See [`docs/cloudflare.md`](docs/cloudflare.md) for:
 
-- Enabling Brotli, Polish (image optimisation), Auto Minify
+- Enabling Brotli and Polish (image optimisation; Polish needs a paid plan)
 - Caching static assets at the edge
 - The **Cloudflare Tunnel latency caveat** — a tunnel adds TTFB; a direct origin
   is faster

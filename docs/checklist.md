@@ -12,7 +12,7 @@
 
 ## CDN (Cloudflare)
 - [ ] Brotli on
-- [ ] Polish on (Lossy + WebP)
+- [ ] Polish on — Lossy + WebP (paid plan only; otherwise optimise images at origin)
 - [ ] Static assets show `cf-cache-status: HIT`
 - [ ] Origin is a direct public IP, or tunnel latency accepted
 - [ ] Analytics beacon disabled (if RUM not needed)
