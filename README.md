@@ -22,7 +22,6 @@ Fix it in this order:
 4. Re-test correctly → see [`docs/measuring.md`](docs/measuring.md)
 
 Quick checklist: [`docs/checklist.md`](docs/checklist.md)
-Measured results: [`docs/before-after.md`](docs/before-after.md)
 
 ---
 
